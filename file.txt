@@ -6,6 +6,41 @@ LIVEWIRE_PATH="universities/livewire"
 LIVEWIRE_ASSET_URL="/universities/livewire/livewire.min.js"
 
 
+1) Fix APP_URL (no trailing slash)
+APP_URL="https://www.uniranks.com/universities"
+
+
+Trailing slashes here cause weird joins.
+
+2) Force URL generation to that base
+
+App\Providers\AppServiceProvider.php
+
+use Illuminate\Support\Facades\URL;
+
+public function boot(): void
+{
+    URL::forceRootUrl(config('app.url'));
+    URL::forceScheme('https'); // behind Cloudflare/HTTPS
+}
+
+3) Set Livewire’s route prefix to include /universities
+
+Publish/edit config/livewire.php (Livewire v3 & v2 both honor path):
+
+return [
+    // Make the endpoints live under /universities/livewire/*
+    'path'      => env('LIVEWIRE_PATH', 'universities/livewire'),
+
+    // Make the script bootstrap use the same base
+    'app_url'   => env('APP_URL'),
+
+    // Your script tag src (already working for you)
+    'asset_url' => env('LIVEWIRE_ASSET_URL', null),
+
+    // ...leave the rest as default
+];
+
 
 Option A — Livewire v3 (most likely)
 
